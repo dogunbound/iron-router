@@ -28,7 +28,7 @@ Meteor.isClient && Tinytest.add('Router - dispatch - current', function (test) {
     var current;
 
     if (Meteor.isClient) {
-      Deps.autorun(function (c) {
+      Tracker.autorun(function (c) {
         current = router.current();
       });
 
@@ -41,7 +41,7 @@ Meteor.isClient && Tinytest.add('Router - dispatch - current', function (test) {
       test.instanceOf(call.stack, Iron.MiddlewareStack, 'stack is a MiddlewareStack');
 
       test.isNull(current, 'current is null until a flush');
-      Deps.flush();
+      Tracker.flush();
       test.instanceOf(current, Iron.RouteController, 'current is instance of Iron.RouteController');
       test.equal(current.request, req, 'request is set');
       test.equal(current.response, res, 'response is set');
@@ -53,7 +53,7 @@ Meteor.isClient && Tinytest.add('Router - dispatch - current', function (test) {
 
       router(req, res, next);
       test.isTrue(stopped, 'previous controller stopped');
-      Deps.flush();
+      Tracker.flush();
       test.isTrue(oldCurrent !== current, 'current controller is not the old controller');
     }
 
@@ -104,7 +104,7 @@ if (Meteor.isClient) {
 
     prevController = router.dispatch('/items/1', {});
     prevComp = prevController._computation;
-    Deps.flush();
+    Tracker.flush();
     test.isTrue(calls[0], "action function not called");
     test.equal(calls[0].id, "1", "this.params.id is incorrect");
 
@@ -118,7 +118,7 @@ if (Meteor.isClient) {
 
     newController = router.dispatch('/items/2', {});
     newComp = newController._computation;
-    Deps.flush();
+    Tracker.flush();
     test.isTrue(calls[1], "action function not called");
     test.equal(calls[1].id, "2", "this.params.id is incorrect");
 
@@ -148,7 +148,7 @@ if (Meteor.isClient) {
     var router = new Iron.Router({autoRender: false, autoStart: false});
   
     var twoActionRan = 0;
-    var dep = new Deps.Dependency;
+    var dep = new Tracker.Dependency;
 
     router.route('/one', function () {
       dep.depend();
@@ -162,11 +162,11 @@ if (Meteor.isClient) {
 
     router.start();
     router.go('one');
-    Deps.flush();
+    Tracker.flush();
     test.equal(twoActionRan, 1, "redirected route action should have run once");
   
     dep.changed();
-    Deps.flush();
+    Tracker.flush();
     test.equal(twoActionRan, 2, "redirected route action should rerun if computation invalidated");
   });
   */
